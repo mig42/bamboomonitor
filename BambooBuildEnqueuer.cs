@@ -54,9 +54,9 @@ namespace BambooMonitor
             {
                 using (WebClient client = BuildWebClient())
                 {
-                    client.DownloadString(string.Concat(
+                    client.UploadString(string.Concat(
                         REST_API_BASE_URI,
-                        string.Format(QUEUE_URI, branchPlanKey)));
+                        string.Format(QUEUE_URI, branchPlanKey)), string.Empty);
                 }
             }
             catch (WebException e)
@@ -64,6 +64,7 @@ namespace BambooMonitor
                 mLog.ErrorFormat(
                     "Unable to enqueue build for plan {0}: {1}", branchPlanKey, e.Message);
                 mLog.DebugFormat("Stack trace:{0}{1}", Environment.NewLine, e.StackTrace);
+                throw;
             }
         }
 
