@@ -1,0 +1,3 @@
+[submodule "cmdrunner"]
+	path = cmdrunner
+	url = https://github.com/PlasticSCM/plastic-cmdrunner.git
