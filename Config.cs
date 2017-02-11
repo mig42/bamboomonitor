@@ -35,7 +35,6 @@ namespace BambooMonitor
             mLog.InfoFormat(PARAM_LOG_FORMAT, PLASTIC_BRANCH_PREFIX_KEY, PlasticBranchPrefix);
             mLog.InfoFormat(PARAM_LOG_FORMAT, TTS_SERVER_KEY, TtsServer);
             mLog.InfoFormat(PARAM_LOG_FORMAT, TTS_USER_KEY, TtsUser);
-            mLog.InfoFormat(PARAM_LOG_FORMAT, TTS_PASSWORD_KEY, TtsPassword);
             mLog.InfoFormat(PARAM_LOG_FORMAT, BAMBOO_SERVER_KEY, BambooServer);
             mLog.InfoFormat(PARAM_LOG_FORMAT, BAMBOO_PLAN_KEY, BambooPlan);
             mLog.InfoFormat(PARAM_LOG_FORMAT, BAMBOO_USER_KEY, BambooUser);
