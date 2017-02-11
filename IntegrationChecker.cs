@@ -19,7 +19,7 @@ namespace BambooMonitor
             if (string.IsNullOrEmpty(taskNumber))
                 return false;
 
-            TaskInfo taskInfo = TaskInfo.ParseFromHtml(RetrieveTaskPage(taskNumber));
+            TaskInfo taskInfo = TaskInfoParser.FromHtml(RetrieveTaskPage(taskNumber));
             if (taskInfo == null)
                 return false;
 
@@ -66,7 +66,7 @@ namespace BambooMonitor
         static readonly ILog mLog = LogManager.GetLogger("bamboomonitor");
 
         const string TASK_IDENTIFIER = "scm";
-        const string TTS_TASK_RELATIVE_URI = "/tts/visualize.php";
+        const string TTS_TASK_RELATIVE_URI = "/visualize.php";
         const string TTS_TASK_ARGUMENT = "iddefect";
     }
 }
