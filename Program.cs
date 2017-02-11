@@ -33,7 +33,7 @@ namespace BambooMonitor
                 Environment.Exit(1);
             }
 
-            EnqueueBuildsInBamboo(branchesToIntegrate);
+            EnqueueBuildsInBamboo(config, branchesToIntegrate);
         }
 
         static List<string> RetrieveBranchesToIntegrate(Config config)
