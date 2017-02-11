@@ -29,7 +29,9 @@ namespace BambooMonitor
 
         string GetTaskNumber(string branchName)
         {
-            int idIndex = branchName.LastIndexOf(mConfig.PlasticBranchPrefix);
+            int idIndex = branchName.ToLowerInvariant().LastIndexOf(
+                mConfig.PlasticBranchPrefix);
+
             if (idIndex < 0)
                 return string.Empty;
 

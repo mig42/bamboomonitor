@@ -69,7 +69,7 @@ namespace BambooMonitor
                     config.PlasticRepo = value;
                     return;
                 case PLASTIC_BRANCH_PREFIX_KEY:
-                    config.PlasticBranchPrefix = value;
+                    config.PlasticBranchPrefix = value.ToLowerInvariant();
                     return;
                 case BAMBOO_SERVER_KEY:
                     config.BambooServer = value;

@@ -68,10 +68,11 @@ namespace BambooMonitor
         {
             string cmdOutput = CmdRunner.ExecuteCommandWithStringResult(
                 string.Format(
-                    "cm find \"branch where name like '{0}%' and attribute='status' "
-                    + "and attrvalue='RESOLVED' on repository '{1}'\" "
+                    "cm find \"branch where (name like '{0}%' or name like '{1}%') "
+                    + "and attribute='status' and attrvalue='RESOLVED' on repository '{2}'\" "
                     + "--format={{name}} --nototal ",
                     config.PlasticBranchPrefix,
+                    config.PlasticBranchPrefix.ToUpperInvariant(),
                     config.PlasticRepo),
                 Environment.CurrentDirectory);
 
