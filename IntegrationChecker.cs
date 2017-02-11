@@ -66,7 +66,7 @@ namespace BambooMonitor
         static readonly ILog mLog = LogManager.GetLogger("bamboomonitor");
 
         const string TASK_IDENTIFIER = "scm";
-        const string TTS_TASK_RELATIVE_URI = "/visualize.php";
+        const string TTS_TASK_RELATIVE_URI = "visualize.php";
         const string TTS_TASK_ARGUMENT = "iddefect";
     }
 }

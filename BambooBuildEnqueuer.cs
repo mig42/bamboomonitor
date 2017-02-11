@@ -94,9 +94,9 @@ namespace BambooMonitor
 
         static readonly ILog mLog = LogManager.GetLogger("bamboomonitor");
 
-        const string REST_API_BASE_URI = "/rest/api/latest";
-        const string BRANCH_URI = "/plan/{0}/branch/{1}.json";
-        const string QUEUE_URI = "/queue/{0}.json";
+        const string REST_API_BASE_URI = "rest/api/latest";
+        const string BRANCH_URI = "plan/{0}/branch/{1}.json";
+        const string QUEUE_URI = "queue/{0}.json";
 
         const string AUTH_PARAM = "os_authType";
         const string AUTH_TYPE = "basic";
