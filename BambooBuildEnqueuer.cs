@@ -22,16 +22,8 @@ namespace BambooMonitor
 
             try
             {
-                using (WebClient client = new WebClient())
+                using (WebClient client = BuildWebClient())
                 {
-                    client.BaseAddress = mConfig.BambooServer;
-                    byte[] authData = Encoding.ASCII.GetBytes(string.Concat(
-                        mConfig.BambooUser, ":", mConfig.BambooPassword));
-                    client.Headers[HttpRequestHeader.Authorization] =
-                        string.Concat("Basic ", Convert.ToBase64String(authData));
-
-                    client.QueryString.Add(AUTH_PARAM, AUTH_TYPE);
-
                     string relUri = string.Concat(
                         REST_API_BASE_URI,
                         string.Format(BRANCH_URI, mConfig.BambooPlan, gitBranch));
@@ -58,7 +50,21 @@ namespace BambooMonitor
 
         internal void EnqueueBuild(string branchPlanKey)
         {
-
+            try
+            {
+                using (WebClient client = BuildWebClient())
+                {
+                    client.DownloadString(string.Concat(
+                        REST_API_BASE_URI,
+                        string.Format(QUEUE_URI, branchPlanKey)));
+                }
+            }
+            catch (WebException e)
+            {
+                mLog.ErrorFormat(
+                    "Unable to enqueue build for plan {0}: {1}", branchPlanKey, e.Message);
+                mLog.DebugFormat("Stack trace:{0}{1}", Environment.NewLine, e.StackTrace);
+            }
         }
 
         string ConvertBranchToGitFormat(string plasticBranch)
@@ -68,12 +74,28 @@ namespace BambooMonitor
             return plasticBranch.Replace(PLASTIC_BRANCH_SEPARATOR, GIT_BRANCH_SEPARATOR);
         }
 
+        WebClient BuildWebClient()
+        {
+            WebClient result = new WebClient();
+
+            result.BaseAddress = mConfig.BambooServer;
+            byte[] authData = Encoding.ASCII.GetBytes(string.Concat(
+                mConfig.BambooUser, ":", mConfig.BambooPassword));
+            result.Headers[HttpRequestHeader.Authorization] =
+                string.Concat("Basic ", Convert.ToBase64String(authData));
+
+            result.QueryString.Add(AUTH_PARAM, AUTH_TYPE);
+
+            return result;
+        }
+
         Config mConfig;
 
         static readonly ILog mLog = LogManager.GetLogger("bamboomonitor");
 
         const string REST_API_BASE_URI = "/rest/api/latest";
         const string BRANCH_URI = "/plan/{0}/branch/{1}.json";
+        const string QUEUE_URI = "/queue/{0}.json";
 
         const string AUTH_PARAM = "os_authType";
         const string AUTH_TYPE = "basic";
