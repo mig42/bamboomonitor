@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using log4net;
+
 namespace BambooMonitor
 {
     class Config
@@ -24,6 +26,20 @@ namespace BambooMonitor
                 ParseLine(result, line.Trim());
 
             return result;
+        }
+
+        internal void Log()
+        {
+            mLog.InfoFormat("Running with settings:");
+            mLog.InfoFormat(PARAM_LOG_FORMAT, PLASTIC_REPO_KEY, PlasticRepo);
+            mLog.InfoFormat(PARAM_LOG_FORMAT, PLASTIC_BRANCH_PREFIX_KEY, PlasticBranchPrefix);
+            mLog.InfoFormat(PARAM_LOG_FORMAT, TTS_SERVER_KEY, TtsServer);
+            mLog.InfoFormat(PARAM_LOG_FORMAT, TTS_USER_KEY, TtsUser);
+            mLog.InfoFormat(PARAM_LOG_FORMAT, TTS_PASSWORD_KEY, TtsPassword);
+            mLog.InfoFormat(PARAM_LOG_FORMAT, BAMBOO_SERVER_KEY, BambooServer);
+            mLog.InfoFormat(PARAM_LOG_FORMAT, BAMBOO_PLAN_KEY, BambooPlan);
+            mLog.InfoFormat(PARAM_LOG_FORMAT, BAMBOO_USER_KEY, BambooUser);
+            mLog.InfoFormat(PARAM_LOG_FORMAT, BAMBOO_PASSWORD_KEY, BambooPassword);
         }
 
         static void ParseLine(Config config, string line)
@@ -74,6 +90,8 @@ namespace BambooMonitor
         {
         }
 
+        static readonly ILog mLog = LogManager.GetLogger("bamboomonitor");
+
         const string TTS_SERVER_KEY = "tts.server";
         const string TTS_USER_KEY = "tts.user";
         const string TTS_PASSWORD_KEY = "tts.password";
@@ -83,5 +101,7 @@ namespace BambooMonitor
         const string BAMBOO_PLAN_KEY = "bamboo.plan";
         const string BAMBOO_USER_KEY = "bamboo.user";
         const string BAMBOO_PASSWORD_KEY = "bamboo.password";
+
+        const string PARAM_LOG_FORMAT = " {0}={1}";
     }
 }

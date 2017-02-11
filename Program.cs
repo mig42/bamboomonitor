@@ -16,9 +16,13 @@ namespace BambooMonitor
         {
             ConfigureLogging();
 
+            mLog.Info("BAMBOOMONITOR START");
+
             string configFile = Path.Combine(GetConfigPath(), CONFIG_FILE);
 
             Config config = Config.ParseFromFile(CONFIG_FILE);
+            config.Log();
+
             if (config == null)
             {
                 Console.WriteLine("Unable to get configuration from " + configFile);
@@ -33,14 +37,23 @@ namespace BambooMonitor
                 Environment.Exit(1);
             }
 
+            mLog.DebugFormat("{0} branches to integrate", branchesToIntegrate.Count);
             EnqueueBuildsInBamboo(config, branchesToIntegrate);
+
+            mLog.Info("BAMBOOMONITOR END");
         }
 
         static List<string> RetrieveBranchesToIntegrate(Config config)
         {
             try
             {
+                mLog.Debug("Retrieving resolved branches");
                 List<string> resolvedBranches = GetResolvedBranches(config);
+
+                mLog.DebugFormat(
+                    "{0} branches found with prefix '{1}' and status 'RESOLVED'",
+                    resolvedBranches.Count,
+                    config.PlasticBranchPrefix);
                 return FilterIntegrableBranches(config, resolvedBranches);
             }
             catch (Exception e)
@@ -76,6 +89,8 @@ namespace BambooMonitor
             {
                 if (checker.CanBeIntegrated(resolvedBranch))
                     result.Add(resolvedBranch);
+                mLog.DebugFormat(
+                    "Skipping branch {0} - Can't be integrated right now", resolvedBranch);
             }
             return result;
         }
@@ -93,11 +108,12 @@ namespace BambooMonitor
                 {
                     string message = string.Format(
                         "Couldn't find a build plan for branch {0}", branch);
-                    Console.WriteLine(message);
-                    mLog.ErrorFormat(message);
+                    mLog.WarnFormat(message);
                     continue;
                 }
 
+                mLog.DebugFormat(
+                    "Plan key {0} found for branch {1}. Enqueuing build.", planKey, branch);
                 try
                 {
                     enqueuer.EnqueueBuild(planKey);
