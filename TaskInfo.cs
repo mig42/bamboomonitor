@@ -83,11 +83,11 @@ namespace BambooMonitor
             if (mbIsAlreadyIntegrated)
                 return false;
 
-            if (mbHasValidator && mStatus == VALIDATED_STATUS)
-                return true;
+            if (mbHasValidator)
+                return mStatus == VALIDATED_STATUS;
 
-            if (mbHasReviewer && mStatus == REVIEWED_STATUS)
-                return true;
+            if (mbHasReviewer)
+                return mStatus == REVIEWED_STATUS;
 
             return mbHasAssignee && mStatus == RESOLVED_STATUS;
         }

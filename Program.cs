@@ -88,10 +88,13 @@ namespace BambooMonitor
             List<string> result = new List<string>();
             foreach (string resolvedBranch in resolvedBranches)
             {
-                if (checker.CanBeIntegrated(resolvedBranch))
-                    result.Add(resolvedBranch);
-                mLog.DebugFormat(
-                    "Skipping branch {0} - Can't be integrated right now", resolvedBranch);
+                if (!checker.CanBeIntegrated(resolvedBranch))
+                {
+                    mLog.DebugFormat(
+                        "Skipping branch {0} - Can't be integrated right now", resolvedBranch);
+                    continue;
+                }
+                result.Add(resolvedBranch);
             }
             return result;
         }
