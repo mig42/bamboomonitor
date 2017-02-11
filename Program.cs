@@ -40,7 +40,7 @@ namespace BambooMonitor
         {
             try
             {
-                List<string> resolvedBranches = GetResolvedBranches(config.PlasticRepo);
+                List<string> resolvedBranches = GetResolvedBranches(config);
                 return FilterIntegrableBranches(config, resolvedBranches);
             }
             catch (Exception e)
@@ -51,11 +51,15 @@ namespace BambooMonitor
             }
         }
 
-        static List<string> GetResolvedBranches(string repo)
+        static List<string> GetResolvedBranches(Config config)
         {
             string cmdOutput = CmdRunner.ExecuteCommandWithStringResult(
-                "cm find \"branch where attribute='status' and attrvalue='RESOLVED' " +
-                "on repository '" + repo + "'\" --format={name} --nototal ",
+                string.Format(
+                    "cm find \"branch where name like '{0}%' and attribute='status' "
+                    + "and attrvalue='RESOLVED' on repository '{1}'\" "
+                    + "--format={{name}} --nototal ",
+                    config.PlasticBranchPrefix,
+                    config.PlasticRepo),
                 Environment.CurrentDirectory);
 
             return new List<string>(cmdOutput.Split(

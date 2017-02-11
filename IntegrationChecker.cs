@@ -28,11 +28,11 @@ namespace BambooMonitor
 
         string GetTaskNumber(string branchName)
         {
-            int idIndex = branchName.LastIndexOf(TASK_IDENTIFIER);
+            int idIndex = branchName.LastIndexOf(mConfig.PlasticBranchPrefix);
             if (idIndex < 0)
                 return string.Empty;
 
-            return branchName.Substring(idIndex + TASK_IDENTIFIER.Length);
+            return branchName.Substring(idIndex + mConfig.PlasticBranchPrefix.Length);
         }
 
         string RetrieveTaskPage(string taskNumber)
@@ -65,7 +65,6 @@ namespace BambooMonitor
 
         static readonly ILog mLog = LogManager.GetLogger("bamboomonitor");
 
-        const string TASK_IDENTIFIER = "scm";
         const string TTS_TASK_RELATIVE_URI = "visualize.php";
         const string TTS_TASK_ARGUMENT = "iddefect";
     }

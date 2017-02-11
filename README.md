@@ -29,6 +29,7 @@ as the executable `bamboomonitor.exe` and named as `bamboomonitor.conf`. The req
 * `tts.user`: User name to authorize TTS requests
 * `tts.password`: Password to authorize TTS requests
 * `plastic.repo`: Full spec of the targeted Plastic SCM repository
+* `plastic.branchPrefix`: Prefix to expect when monitoring branches
 * `bamboo.server`: The base HTTP(S) URI of the Bamboo service
 * `bamboo.plan`: The master plan key where the plan branches will be searched
 * `bamboo.user`: User name to authorize Bamboo REST API requests
@@ -40,6 +41,7 @@ tts.server=https://tts.plasticscm.com
 tts.user=user
 tts.password=pass
 plastic.repo=codice@production.plasticscm.com:7100
+plastic.branchPrefix=scm
 bamboo.server=https://bamboo.plasticscm.com
 bamboo.plan=MY-PLN
 bamboo.user=bamboo-user

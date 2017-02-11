@@ -8,6 +8,7 @@ namespace BambooMonitor
         internal string TtsUser;
         internal string TtsPassword;
         internal string PlasticRepo;
+        internal string PlasticBranchPrefix;
         internal string BambooServer;
         internal string BambooPlan;
         internal string BambooUser;
@@ -51,6 +52,9 @@ namespace BambooMonitor
                 case PLASTIC_REPO_KEY:
                     config.PlasticRepo = value;
                     return;
+                case PLASTIC_BRANCH_PREFIX_KEY:
+                    config.PlasticBranchPrefix = value;
+                    return;
                 case BAMBOO_SERVER_KEY:
                     config.BambooServer = value;
                     return;
@@ -74,6 +78,7 @@ namespace BambooMonitor
         const string TTS_USER_KEY = "tts.user";
         const string TTS_PASSWORD_KEY = "tts.password";
         const string PLASTIC_REPO_KEY = "plastic.repo";
+        const string PLASTIC_BRANCH_PREFIX_KEY = "plastic.branchPrefix";
         const string BAMBOO_SERVER_KEY = "bamboo.server";
         const string BAMBOO_PLAN_KEY = "bamboo.plan";
         const string BAMBOO_USER_KEY = "bamboo.user";
