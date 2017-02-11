@@ -44,7 +44,7 @@ namespace BambooMonitor
             List<string> result = new List<string>();
             foreach (string resolvedBranch in resolvedBranches)
             {
-                if (checker.IsIntegrable(resolvedBranch))
+                if (checker.CanBeIntegrated(resolvedBranch))
                     result.Add(resolvedBranch);
             }
             return result;

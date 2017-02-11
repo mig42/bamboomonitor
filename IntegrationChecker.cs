@@ -11,16 +11,17 @@ namespace BambooMonitor
             mConfig = config;
         }
 
-        internal bool IsIntegrable(string branchName)
+        internal bool CanBeIntegrated(string branchName)
         {
             string taskNumber = GetTaskNumber(branchName);
             if (string.IsNullOrEmpty(taskNumber))
                 return false;
 
-            string taskPage = RetrieveTaskPage(taskNumber);
-            if (string.IsNullOrEmpty(taskPage))
+            TaskInfo taskInfo = TaskInfo.ParseFromHtml(RetrieveTaskPage(taskNumber));
+            if (taskInfo == null)
                 return false;
-            return true;
+
+            return taskInfo.CanBeIntegrated();
         }
 
         string GetTaskNumber(string branchName)
