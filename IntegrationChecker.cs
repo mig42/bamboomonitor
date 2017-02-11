@@ -2,6 +2,8 @@
 using System.Net;
 using System.Text;
 
+using log4net;
+
 namespace BambooMonitor
 {
     class IntegrationChecker
@@ -52,12 +54,16 @@ namespace BambooMonitor
             }
             catch (WebException e)
             {
-                // log
+                mLog.ErrorFormat(
+                    "Unable to query TTS for task {0}: {1}", taskNumber, e.Message);
+                mLog.DebugFormat("Stack trace:{0}{1}", Environment.NewLine, e.StackTrace);
                 return string.Empty;
             }
         }
 
         Config mConfig;
+
+        static readonly ILog mLog = LogManager.GetLogger("bamboomonitor");
 
         const string TASK_IDENTIFIER = "scm";
         const string TTS_TASK_RELATIVE_URI = "/tts/visualize.php";

@@ -1,5 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+
+using log4net;
+using log4net.Config;
 
 using Codice.CmdRunner;
 
@@ -9,20 +14,32 @@ namespace BambooMonitor
     {
         static void Main(string[] args)
         {
-            Config config = Config.ParseFromFile(DEFAULT_CONFIG_FILE);
+            ConfigureLogging();
+
+            string configFile = Path.Combine(GetConfigPath(), CONFIG_FILE);
+
+            Config config = Config.ParseFromFile(CONFIG_FILE);
             if (config == null)
             {
-                Console.WriteLine("Missing configuration file " + DEFAULT_CONFIG_FILE);
+                Console.WriteLine("Unable to get configuration from " + configFile);
                 Environment.Exit(1);
             }
+            
+            try
+            {
+                List<string> resolvedBranches = GetResolvedBranches(config.PlasticRepo);
 
-            List<string> resolvedBranches = GetResolvedBranches(config.PlasticRepo);
-
-            foreach (string resolvedBranch in resolvedBranches)
-                Console.WriteLine(resolvedBranch);
-
-            List<string> integrableBranches = FilterIntegrableBranches(
-                config, resolvedBranches);
+                List<string> integrableBranches = FilterIntegrableBranches(
+                    config, resolvedBranches);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(
+                    "Unable to retrieve the integrable branches. See log for further details.");
+                mLog.ErrorFormat("Error retrieving integrable branches: {0}", e.Message);
+                mLog.DebugFormat("Stack trace:{0}{1}", Environment.NewLine, e.StackTrace);
+                Environment.Exit(1);
+            }
         }
 
         static List<string> GetResolvedBranches(string repo)
@@ -50,6 +67,25 @@ namespace BambooMonitor
             return result;
         }
 
-        const string DEFAULT_CONFIG_FILE = "bamboomonitor.conf";
+        static void ConfigureLogging()
+        {
+            string log4netPath = Path.Combine(GetConfigPath(), LOG_CONFIG_FILE);
+
+            if (!File.Exists(log4netPath))
+                return;
+
+            XmlConfigurator.ConfigureAndWatch(new FileInfo(log4netPath));
+        }
+
+        static string GetConfigPath()
+        {
+            return Path.GetDirectoryName(
+                Assembly.GetExecutingAssembly().Location);
+        }
+
+        static readonly ILog mLog = LogManager.GetLogger("bamboomonitor");
+
+        const string LOG_CONFIG_FILE = "bamboomonitor.log.conf";
+        const string CONFIG_FILE = "bamboomonitor.conf";
     }
 }
