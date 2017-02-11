@@ -8,6 +8,10 @@ namespace BambooMonitor
         internal string TtsUser;
         internal string TtsPassword;
         internal string PlasticRepo;
+        internal string BambooServer;
+        internal string BambooPlan;
+        internal string BambooUser;
+        internal string BambooPassword;
 
         internal static Config ParseFromFile(string path)
         {
@@ -47,6 +51,18 @@ namespace BambooMonitor
                 case PLASTIC_REPO_KEY:
                     config.PlasticRepo = value;
                     return;
+                case BAMBOO_SERVER_KEY:
+                    config.BambooServer = value;
+                    return;
+                case BAMBOO_PLAN_KEY:
+                    config.BambooPlan = value;
+                    return;
+                case BAMBOO_USER_KEY:
+                    config.BambooUser = value;
+                    return;
+                case BAMBOO_PASSWORD_KEY:
+                    config.BambooPassword = value;
+                    return;
             }
         }
 
@@ -58,5 +74,9 @@ namespace BambooMonitor
         const string TTS_USER_KEY = "tts.user";
         const string TTS_PASSWORD_KEY = "tts.password";
         const string PLASTIC_REPO_KEY = "plastic.repo";
+        const string BAMBOO_SERVER_KEY = "bamboo.server";
+        const string BAMBOO_PLAN_KEY = "bamboo.plan";
+        const string BAMBOO_USER_KEY = "bamboo.user";
+        const string BAMBOO_PASSWORD_KEY = "bamboo.password";
     }
 }

@@ -24,21 +24,30 @@ namespace BambooMonitor
                 Console.WriteLine("Unable to get configuration from " + configFile);
                 Environment.Exit(1);
             }
-            
-            try
-            {
-                List<string> resolvedBranches = GetResolvedBranches(config.PlasticRepo);
 
-                List<string> integrableBranches = FilterIntegrableBranches(
-                    config, resolvedBranches);
-            }
-            catch (Exception e)
+            List<string> branchesToIntegrate = RetrieveBranchesToIntegrate(config);
+            if (branchesToIntegrate == null)
             {
                 Console.WriteLine(
                     "Unable to retrieve the integrable branches. See log for further details.");
+                Environment.Exit(1);
+            }
+
+            EnqueueBuildsInBamboo(branchesToIntegrate);
+        }
+
+        static List<string> RetrieveBranchesToIntegrate(Config config)
+        {
+            try
+            {
+                List<string> resolvedBranches = GetResolvedBranches(config.PlasticRepo);
+                return FilterIntegrableBranches(config, resolvedBranches);
+            }
+            catch (Exception e)
+            {
                 mLog.ErrorFormat("Error retrieving integrable branches: {0}", e.Message);
                 mLog.DebugFormat("Stack trace:{0}{1}", Environment.NewLine, e.StackTrace);
-                Environment.Exit(1);
+                return null;
             }
         }
 
@@ -65,6 +74,43 @@ namespace BambooMonitor
                     result.Add(resolvedBranch);
             }
             return result;
+        }
+
+        static void EnqueueBuildsInBamboo(Config config, List<string> branchesToIntegrate)
+        {
+            if (branchesToIntegrate.Count == 0)
+                return;
+
+            BambooBuildEnqueuer enqueuer = new BambooBuildEnqueuer(config);
+            foreach (string branch in branchesToIntegrate)
+            {
+                string planKey = enqueuer.GetBranchPlanKey(branch);
+                if (string.IsNullOrEmpty(planKey))
+                {
+                    string message = string.Format(
+                        "Couldn't find a build plan for branch {0}", branch);
+                    Console.WriteLine(message);
+                    mLog.ErrorFormat(message);
+                    continue;
+                }
+
+                try
+                {
+                    enqueuer.EnqueueBuild(planKey);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(
+                        "Unable to enqueue a build for branch {0}, plan {1} in "
+                        + "Bamboo. See log for further details.", branch, planKey);
+                    mLog.ErrorFormat(
+                        "Error enqueuing branch {0} plan build {1}: {2}",
+                        planKey,
+                        branch,
+                        e.Message);
+                    mLog.DebugFormat("Stack trace:{0}{1}", Environment.NewLine, e.StackTrace);
+                }
+            }
         }
 
         static void ConfigureLogging()
