@@ -18,31 +18,37 @@ namespace BambooMonitor
 
         internal string GetBranchPlanKey(string branch)
         {
-            string gitBranch = ConvertBranchToGitFormat(branch);
+            string bambooBranchName = ConvertBranchToBambooFormat(branch);
 
             try
             {
-                using (WebClient client = BuildWebClient())
-                {
-                    string relUri = string.Concat(
-                        REST_API_BASE_URI,
-                        string.Format(BRANCH_URI, mConfig.BambooPlan, gitBranch));
+                string relUri = string.Join(
+                    AuthenticatedWebClient.URI_SEPARATOR,
+                    REST_API_BASE_URI,
+                    string.Format(BRANCH_URI, mConfig.BambooPlan, bambooBranchName));
 
-                    string result = client.DownloadString(relUri);
+                string result = AuthenticatedWebClient.Get(
+                    mConfig.BambooServer,
+                    relUri,
+                    mConfig.BambooUser,
+                    mConfig.BambooPassword,
+                    mQueryParams);
 
-                    if (string.IsNullOrEmpty(result))
-                        return string.Empty;
+                if (string.IsNullOrEmpty(result))
+                    return string.Empty;
 
-                    BambooBranch bambooBranch =
-                        JsonConvert.DeserializeObject<BambooBranch>(result);
+                BambooBranch bambooBranch =
+                    JsonConvert.DeserializeObject<BambooBranch>(result);
 
-                    return bambooBranch.Key;
-                }
+                return bambooBranch.Key;
             }
             catch (WebException e)
             {
                 mLog.ErrorFormat(
-                    "Unable to find the plan key for branch {0}: {1}", gitBranch, e.Message);
+                    "Unable to find the plan key for branch {0}: {1}",
+                    bambooBranchName, e.Message);
+                if (e.Response != null)
+                    mLog.ErrorFormat("Queried URI: {0}", e.Response.ResponseUri);
                 mLog.DebugFormat("Stack trace:{0}{1}", Environment.NewLine, e.StackTrace);
                 return string.Empty;
             }
@@ -52,12 +58,17 @@ namespace BambooMonitor
         {
             try
             {
-                using (WebClient client = BuildWebClient())
-                {
-                    client.UploadString(string.Concat(
-                        REST_API_BASE_URI,
-                        string.Format(QUEUE_URI, branchPlanKey)), string.Empty);
-                }
+                string relUri = string.Join(
+                    AuthenticatedWebClient.URI_SEPARATOR,
+                    REST_API_BASE_URI,
+                    string.Format(QUEUE_URI, branchPlanKey));
+
+                string result = AuthenticatedWebClient.Post(
+                    mConfig.BambooServer,
+                    relUri,
+                    mConfig.BambooUser,
+                    mConfig.BambooPassword,
+                    mQueryParams);
             }
             catch (WebException e)
             {
@@ -68,31 +79,16 @@ namespace BambooMonitor
             }
         }
 
-        string ConvertBranchToGitFormat(string plasticBranch)
+        string ConvertBranchToBambooFormat(string plasticBranch)
         {
-            plasticBranch = plasticBranch.TrimStart(PLASTIC_BRANCH_SEPARATOR);
-
-            return plasticBranch.Replace(PLASTIC_BRANCH_SEPARATOR, GIT_BRANCH_SEPARATOR);
-        }
-
-        WebClient BuildWebClient()
-        {
-            WebClient result = new WebClient();
-
-            result.BaseAddress = mConfig.BambooServer;
-            byte[] authData = Encoding.ASCII.GetBytes(string.Concat(
-                mConfig.BambooUser, ":", mConfig.BambooPassword));
-            result.Headers[HttpRequestHeader.Authorization] =
-                string.Concat("Basic ", Convert.ToBase64String(authData));
-
-            result.QueryString.Add(AUTH_PARAM, AUTH_TYPE);
-
-            return result;
+            return plasticBranch.Replace(PLASTIC_BRANCH_SEPARATOR, BAMBOO_BRANCH_SEPARATOR);
         }
 
         Config mConfig;
 
         static readonly ILog mLog = LogManager.GetLogger("bamboomonitor");
+        static readonly Dictionary<string, string> mQueryParams =
+            new Dictionary<string, string> { {AUTH_PARAM, AUTH_TYPE} };
 
         const string REST_API_BASE_URI = "rest/api/latest";
         const string BRANCH_URI = "plan/{0}/branch/{1}.json";
@@ -102,6 +98,6 @@ namespace BambooMonitor
         const string AUTH_TYPE = "basic";
 
         const char PLASTIC_BRANCH_SEPARATOR = '/';
-        const char GIT_BRANCH_SEPARATOR = '-';
+        const char BAMBOO_BRANCH_SEPARATOR = '-';
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
@@ -39,26 +40,30 @@ namespace BambooMonitor
         {
             try 
             {
-                using (WebClient client = new WebClient())
-                {
-                    client.BaseAddress = mConfig.TtsServer;
-                    byte[] authData = Encoding.ASCII.GetBytes(string.Concat(
-                        mConfig.TtsUser, ":", mConfig.TtsPassword));
-                    client.Headers[HttpRequestHeader.Authorization] =
-                        string.Concat("Basic ", Convert.ToBase64String(authData));
-
-                    client.QueryString.Add(TTS_TASK_ARGUMENT, taskNumber);
-
-                    return client.DownloadString(TTS_TASK_RELATIVE_URI);
-                }
+                return AuthenticatedWebClient.Get(
+                    mConfig.TtsServer,
+                    TTS_TASK_RELATIVE_URI,
+                    mConfig.TtsUser,
+                    mConfig.TtsPassword,
+                    BuildQueryParams(taskNumber));
             }
             catch (WebException e)
             {
                 mLog.ErrorFormat(
                     "Unable to query TTS for task {0}: {1}", taskNumber, e.Message);
+                if (e.Response != null)
+                    mLog.ErrorFormat("Queried URI: {0}", e.Response.ResponseUri);
                 mLog.DebugFormat("Stack trace:{0}{1}", Environment.NewLine, e.StackTrace);
                 return string.Empty;
             }
+        }
+
+        Dictionary<string, string> BuildQueryParams(string taskNumber)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            result.Add(TTS_TASK_ARGUMENT, taskNumber);
+
+            return result;
         }
 
         Config mConfig;

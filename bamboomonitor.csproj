@@ -45,6 +45,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthenticatedWebClient.cs" />
     <Compile Include="BambooBranch.cs" />
     <Compile Include="BambooBuildEnqueuer.cs" />
     <Compile Include="Config.cs" />
