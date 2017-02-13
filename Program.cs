@@ -110,31 +110,57 @@ namespace BambooMonitor
                 string planKey = enqueuer.GetBranchPlanKey(branch);
                 if (string.IsNullOrEmpty(planKey))
                 {
-                    string message = string.Format(
+                    mLog.WarnFormat(
                         "Couldn't find a build plan for branch {0}", branch);
-                    mLog.WarnFormat(message);
                     continue;
                 }
 
-                mLog.DebugFormat(
-                    "Plan key {0} found for branch {1}. Enqueuing build.", planKey, branch);
-                try
-                {
-                    enqueuer.EnqueueBuild(planKey);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(
-                        "Unable to enqueue a build for branch {0}, plan {1} in "
-                        + "Bamboo. See log for further details.", branch, planKey);
-                    mLog.ErrorFormat(
-                        "Error enqueuing branch {0} plan build {1}: {2}",
-                        planKey,
-                        branch,
-                        e.Message);
-                    mLog.DebugFormat("Stack trace:{0}{1}", Environment.NewLine, e.StackTrace);
-                }
+                if(EnqueueBuild(enqueuer, planKey, branch))
+                    SetStatusToTesting(branch, config);
             }
+        }
+
+        static bool EnqueueBuild(
+            BambooBuildEnqueuer enqueuer, string planKey, string branch)
+        {
+            mLog.DebugFormat(
+                "Plan key {0} found for branch {1}. Enqueuing build.", planKey, branch);
+            try
+            {
+                enqueuer.EnqueueBuild(planKey);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(
+                    "Unable to enqueue a build for branch {0}, plan {1} in "
+                    + "Bamboo. See log for further details.", branch, planKey);
+                mLog.ErrorFormat(
+                    "Error enqueuing branch {0} plan build {1}: {2}",
+                    planKey,
+                    branch,
+                    e.Message);
+                mLog.DebugFormat("Stack trace:{0}{1}", Environment.NewLine, e.StackTrace);
+                return false;
+            }
+        }
+
+        static void SetStatusToTesting(string branch, Config config)
+        {
+            string command = string.Format(
+                "cm setattribute att:status@{1} br:{0}@{1} TESTING", branch, config.PlasticRepo);
+            string output;
+            string error;
+            int cmdResult = CmdRunner.ExecuteCommandWithResult(
+                  command, Environment.CurrentDirectory, out output, out error, true);
+
+            if (cmdResult == 0)
+                return;
+
+            mLog.WarnFormat(
+                "Couldn't set the 'status' attribute of branch '{0}' to 'TESTING'", branch);
+            mLog.InfoFormat("Command output: {0}", output);
+            mLog.ErrorFormat("Command error: {1}", error);
         }
 
         static void ConfigureLogging()
